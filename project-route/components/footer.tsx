@@ -44,7 +44,7 @@ const Footer = () => {
             <h3 className="text-lg font-semibold">Connect</h3>
             <div className="mt-2 flex items-center space-x-4">
               <Link
-                href="https://github.com/yourusername/medifind"
+                href="https://github.com/yab-g4u/medi-finder"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-muted-foreground hover:text-primary transition-colors"
