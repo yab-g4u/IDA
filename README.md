@@ -51,17 +51,17 @@ npm run dev
 Visit **`http://localhost:3000`** to explore the AI-powered healthcare assistant!  
 
 ---
-
+Visit **`https://agent.ai/agent/medicine-finder`** to check out the agent and (note that it is unfinished)
 ## **💡 Why This App Stands Out?**  
 ⚡ **AI-Powered & Future-Ready** – Utilizes cutting-edge **Agent.AI** for real-time medical assistance.  
 🌍 **Impactful Solution** – Addresses a **real-world problem** by making healthcare information more **accessible**.  
-
+Visit **`https://v0-medicine-finder.vercel.app/`** it is still under development and there might be a lot of error
 ---
 
 ## **📩 Contact & Team**  
 **👥 Team:**   
 📧 Contact:   
-🔗 GitHub Repo: [[Your GitHub Repo Link](https://github.com/yab-g4u/medi-finder.git)]  
+🔗 GitHub Repo: [[MEDI-FINDER](https://github.com/yab-g4u/medi-finder.git)]  
 
 ---
 
