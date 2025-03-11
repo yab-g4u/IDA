@@ -1,5 +1,5 @@
 ### **🧠Medical Assistant**  
-🚀 *Revolutionizing healthcare accessibility with AI-powered medicine information and pharmacy discovery.*  
+🚀 *Revolutionizing healthcare accessibility using ai agent to give people medicine information and pharmacy discovery.*  
 
 ---
 
