@@ -61,7 +61,7 @@ Visit **`http://localhost:3000`** to explore the AI-powered healthcare assistant
 ## **📩 Contact & Team**  
 **👥 Team:**   
 📧 Contact:   
-🔗 GitHub Repo: [Your GitHub Repo Link]  
+🔗 GitHub Repo: [[Your GitHub Repo Link](https://github.com/yab-g4u/medi-finder.git)]  
 
 ---
 
