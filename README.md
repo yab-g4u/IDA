@@ -1,4 +1,4 @@
-### **🧠Medical Assistant**  
+### **IDA**  
 🚀 *Revolutionizing healthcare accessibility using ai agent to give people medicine information and pharmacy discovery.*  
 
 ---
