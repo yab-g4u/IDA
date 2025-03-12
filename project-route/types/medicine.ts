@@ -5,5 +5,10 @@ export interface MedicineInfo {
   usage: string
   sideEffects: string[]
   precautions: string[]
+  benefits: string
+  monitoring: string
+  medicalHistory: string
+  inhibitorTesting: string
+  agesDosage: string
 }
 
