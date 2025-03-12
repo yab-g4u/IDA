@@ -5,28 +5,58 @@ import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { ModeToggle } from "./mode-toggle"
-import { Menu, X } from "lucide-react"
-import { usePathname } from "next/navigation"
+import { LanguageToggle } from "./language-toggle"
+import { Menu, X, LogOut } from "lucide-react"
+import { usePathname, useRouter } from "next/navigation"
+import { useLanguage } from "@/contexts/language-context"
+import { checkAuth, handleLogout, setupAuthListener } from "@/lib/auth-utils"
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
   const pathname = usePathname()
+  const router = useRouter()
+  const { t } = useLanguage()
 
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10)
     }
     window.addEventListener("scroll", handleScroll)
-    return () => window.removeEventListener("scroll", handleScroll)
+
+    // Check authentication status
+    const checkAuthStatus = async () => {
+      const { isAuthenticated } = await checkAuth()
+      setIsLoggedIn(isAuthenticated)
+    }
+
+    checkAuthStatus()
+
+    // Set up auth state listener
+    const { data: authListener } = setupAuthListener((isAuthenticated) => {
+      setIsLoggedIn(isAuthenticated)
+    })
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll)
+      authListener?.subscription.unsubscribe()
+    }
   }, [])
 
   const navLinks = [
-    { name: "Home", href: "/" },
-    { name: "Medicine Search", href: "/medicine-search" },
-    { name: "Pharmacy Finder", href: "/pharmacy-finder" },
-    { name: "About", href: "/about" },
+    { name: t("home"), href: "/" },
+    { name: t("medicineSearch"), href: "/medicine-search" },
+    { name: t("pharmacyFinder"), href: "/pharmacy-finder" },
+    { name: t("about"), href: "/about" },
   ]
+
+  const onLogout = async () => {
+    const success = await handleLogout()
+    if (success) {
+      router.push("/")
+    }
+  }
 
   return (
     <header
@@ -38,17 +68,17 @@ const Header = () => {
             <Link href="/" className="flex items-center space-x-2">
               <Image
                 src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/3-removebg-preview-l2DKgfUHcBuKJFrsaktp6AIX0wwgA1.png"
-                alt="MediFind Logo"
+                alt="IDA Logo"
                 width={40}
                 height={40}
                 className="rounded-md"
               />
-              <span className="text-xl font-bold text-primary">MediFind</span>
+              <span className="text-xl font-bold text-primary">IDA</span>
             </Link>
           </div>
 
           {/* Desktop navigation */}
-          <nav className="hidden md:flex items-center space-x-6">
+          <nav className="hidden md:flex items-center space-x-4">
             {navLinks.map((link) => (
               <Link
                 key={link.name}
@@ -58,11 +88,19 @@ const Header = () => {
                 {link.name}
               </Link>
             ))}
+            {isLoggedIn && (
+              <Button variant="ghost" size="sm" onClick={onLogout} className="text-sm font-medium">
+                <LogOut className="h-4 w-4 mr-2" />
+                Logout
+              </Button>
+            )}
+            <LanguageToggle />
             <ModeToggle />
           </nav>
 
           {/* Mobile menu button */}
           <div className="flex md:hidden">
+            <LanguageToggle />
             <ModeToggle />
             <Button variant="ghost" size="icon" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="ml-2">
               {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -86,6 +124,12 @@ const Header = () => {
                 {link.name}
               </Link>
             ))}
+            {isLoggedIn && (
+              <Button variant="ghost" className="w-full justify-start text-base font-medium" onClick={onLogout}>
+                <LogOut className="h-4 w-4 mr-2" />
+                Logout
+              </Button>
+            )}
           </div>
         </div>
       )}
