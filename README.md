@@ -55,7 +55,7 @@ Visit [Medi-Finder](https://agent.ai/agent/medicine-finder) to check out the age
 ## **💡 Why This App Stands Out?**  
 ⚡ **AI-Powered & Future-Ready** – Utilizes cutting-edge **Agent.AI** for real-time medical assistance.  
 🌍 **Impactful Solution** – Addresses a **real-world problem** by making healthcare information more **accessible**.  
-Visit [Medi-Finder](https://v0-medicine-finder.vercel.app/) to check the web app and it is still under development and there might be a lot of error
+Visit [Medi-Finder](https://ida-test.vercel.app/)/) to check the web app and it is still under development and there might be a lot of error
 ---
 
 ## **📩 Contact & Team**  
