@@ -7,7 +7,7 @@ const Footer = () => {
       <div className="container mx-auto px-4 py-8 md:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
           <div>
-            <h3 className="text-lg font-semibold">MediFind</h3>
+            <h3 className="text-lg font-semibold">IDA</h3>
             <p className="mt-2 text-sm text-muted-foreground">
               Your AI-powered medicine information assistant. Find detailed information about medications and locate
               nearby pharmacies.
@@ -44,7 +44,7 @@ const Footer = () => {
             <h3 className="text-lg font-semibold">Connect</h3>
             <div className="mt-2 flex items-center space-x-4">
               <Link
-                href="https://github.com/yab-g4u/medi-finder"
+                href="https://github.com/yab-g4u/ida"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-muted-foreground hover:text-primary transition-colors"
@@ -59,7 +59,7 @@ const Footer = () => {
 
         <div className="mt-8 border-t pt-6">
           <p className="text-center text-xs text-muted-foreground">
-            &copy; {new Date().getFullYear()} MediFind. All rights reserved.
+            &copy; {new Date().getFullYear()} IDA. All rights reserved.
           </p>
         </div>
       </div>
