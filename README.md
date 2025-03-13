@@ -51,7 +51,7 @@ npm run dev
 Visit **`http://localhost:3000`** to explore the AI-powered healthcare assistant!  
 
 ---
-Visit [Medi-Finder](https://agent.ai/agent/medicine-finder) to check out the agent and (note that it is unfinished)
+Visit [Medi-Finder](https://agent.ai/agent/IDA) to check out the agent and (note that it is unfinished)
 ## **💡 Why This App Stands Out?**  
 ⚡ **AI-Powered & Future-Ready** – Utilizes cutting-edge **Agent.AI** for real-time medical assistance.  
 🌍 **Impactful Solution** – Addresses a **real-world problem** by making healthcare information more **accessible**.  
