@@ -21,7 +21,7 @@ The app is designed to be **fast, responsive, and user-friendly**, ensuring **se
 
 ---
 ## **Potential Benefits**
-  **Improved Accessibility:** - Makes healthcare information readily available to underserved communities.
+  **Improved Accessibility:** - Makes healthcare information readily available.
   
   **Time Efficiency** - Reduces the time spent searching for pharmacies or understanding medication details.
   
