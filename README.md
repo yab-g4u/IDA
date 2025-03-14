@@ -75,8 +75,8 @@ Visit [Medi-Finder](https://ida-test.vercel.app/) to check the web app and it is
 ---
 
 ## **📩 Contact & Team**  
-**👥 Team:**   
-📧 Contact:   
+**👥 Team:**  **IDA** 
+📧 Contact:   [[Team-IDA](g4uforlife@gmail.com)]
 🔗 GitHub Repo: [[Medi-Finder](https://github.com/yab-g4u/medi-finder.git)]  
 
 ---
