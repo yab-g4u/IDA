@@ -18,7 +18,6 @@ The app is designed to be **fast, responsive, and user-friendly**, ensuring **se
 ✅ **Pharmacy Locator** – Find nearby pharmacies with an **interactive Google Map** & modern cards.  
 ✅ **Dual Language Support** – Accessible in **English & Amharic** for a wider audience.  
 ✅ **Modern UI/UX with Smooth Animations** – Designed to impress, with **minimalistic yet engaging visuals**.  
-✅ **Hackathon-Optimized Performance** – Built with best practices, structured for GitHub, and **highly scalable**.  
 
 ---
 ## **Potential Benefits**
