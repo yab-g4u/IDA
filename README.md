@@ -4,7 +4,7 @@
 ---
 
 ## **🌟 Overview**  
-The **AI-Powered Medical Assistant** is an **interactive, modern, and intuitive** web application built for the hackathon, integrating **Agent.AI** to enhance healthcare accessibility. Our AI agent assists users by:  
+The **AI-Powered Medical Assistant** is an **interactive, modern, and intuitive** web application built for the hackathon, integrating **Agent.AI** to enhance healthcare accessibility. This concept involves leveraging AI technology to create an intelligent, interactive system that empowers individuals with accurate medical information and helps them locate pharmacies efficiently. The AI agent acts as a virtual assistant, bridging the gap between patients and healthcare resources. Our AI agent assists users by:
 
 1️⃣ **Providing detailed medical insights** about medicines (usage, side effects, precautions).  
 2️⃣ **Finding nearby pharmacies** using real-time location-based search and an interactive map.  
@@ -21,6 +21,22 @@ The app is designed to be **fast, responsive, and user-friendly**, ensuring **se
 ✅ **Hackathon-Optimized Performance** – Built with best practices, structured for GitHub, and **highly scalable**.  
 
 ---
+## **Potential Benefits**
+  **Improved Accessibility:** - Makes healthcare information readily available to underserved communities.
+  
+  **Time Efficiency** - Reduces the time spent searching for pharmacies or understanding medication details.
+  
+  **Enhanced Patient Empowerment:** - Educates users, enabling them to make informed decisions about their health. 
+  
+ **Cost Savings** - By comparing pharmacy options, users can find affordable solutions.
+
+---
+## **Challenges and Considerations**
+**Data Privacy:** - Ensuring the secure handling of sensitive medical information.
+
+ **Accuracy:** - Maintaining up-to-date and reliable information about medicines and pharmacies.
+ 
+ **Adoption Barriers:** -Encouraging users and healthcare providers to trust and adopt the technology.
 
 ## **🛠️ Technologies Used**  
 🔹 **Next.js 14** – Optimized performance & server-side rendering.  
