@@ -1,4 +1,3 @@
-// Common medicines in Ethiopia
 export const ethiopianMedicines = [
   "Amoxicillin",
   "Paracetamol",
@@ -66,7 +65,6 @@ export const ethiopianLocations = [
   "Kombolcha",
 ]
 
-// Function to filter suggestions based on input
 export function filterSuggestions(input: string, data: string[]): string[] {
   if (!input.trim()) return []
 
