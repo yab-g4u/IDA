@@ -60,8 +60,9 @@ The app is designed to be **fast, responsive, and user-friendly**, ensuring **se
 🔹 **HERE Maps API** – Interactive pharmacy locator.  
 🔹 **Framer Motion** – Smooth animations for an immersive experience.  
 🔹 **Blockchain Technology** – Secure, transparent marketplace for purchasing verified medicines.  
-🔹 **IDT Token** – Incentivizing user interaction and engagement within the ecosystem.
-
+   - **Solidity** – Smart contract development.  
+   - **Ethereum** – Blockchain platform for deploying and managing smart contracts.  
+   - **Web3.js** – JavaScript library for interacting with the Ethereum blockchain.  
 ---
 
 ## **🚀 Getting Started**  
@@ -85,7 +86,7 @@ Visit **`http://localhost:3000`** to explore the AI-powered healthcare assistant
 ---
 
 Visit [IDA](https://agent.ai/agent/IDA) to check out the agent and  
-## **💡 Why This App Stands Out?**  
+## **💡 What makes us(IDA) standout you ask?**  
 ⚡ **AI-Powered & Future-Ready** – Utilizes cutting-edge **Agent.AI** for real-time medical assistance.  
 🌍 **Impactful Solution** – Addresses a **real-world problem** by making healthcare information more **accessible**.  
 💎 **Blockchain Integration** – Ensures **secure transactions** for purchasing verified medicines, promoting trust and transparency.  
