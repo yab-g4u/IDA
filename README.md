@@ -20,7 +20,7 @@ The app is designed to be **fast, responsive, and user-friendly**, ensuring **se
 ✅ **AI-Powered Medicine Information** – Instantly get **accurate** medicine details using **Agent.AI**.  
 ✅ **Pharmacy Locator** – Find nearby pharmacies with an **interactive Google Map** & modern cards.  
 ✅ **Blockchain-Powered Marketplace** – Secure and trusted platform to purchase **verified medicines**, powered by blockchain for transparency.  
-✅ Dual Language Support – Accessible in English & Amharic for a wider audience.
+✅ **Dual Language Support** – Accessible in English & Amharic for a wider audience.
 ✅ **IDT Token** – Earn tokens by engaging with the platform, enabling **secure transactions** and **rewards**.  
 ✅ **Modern UI/UX with Smooth Animations** – Designed to impress, with **minimalistic yet engaging visuals**.  
 
