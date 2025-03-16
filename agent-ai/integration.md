@@ -1,7 +1,6 @@
-Got it! Here's an updated version of the `integration.md` document that outlines the **steps for integrating** **Medicine Search** and **Pharmacy Locator** inside your **Next.js** application. This is written to show how the integration was done for a **hackathon submission**.
 
 ```markdown
-# Hackathon Submission: Integration of Medicine Search & Pharmacy Locator with Next.js
+# Integration of Medicine Search & Pharmacy Locator we made inside agent.ai with Next.js
 
 ## Overview
 
