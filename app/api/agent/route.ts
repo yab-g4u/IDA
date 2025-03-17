@@ -24,9 +24,9 @@ export async function POST(request: Request) {
     try {
       // Try to use the webhook URL if available, otherwise use direct API call
       const AGENT_WEBHOOK_URL = process.env.AGENT_WEBHOOK_URL
-      const AGENT_API_KEY = "T8VglzcO4J4Lqh8r2bS0h66rS7i1302f6lS4oCloW4crxbsIu9No51X5yyrTOork"
-      const AGENT_ID = "0541764d16d748f694ef5e29b5a27f74"
-      const apiUrl = AGENT_WEBHOOK_URL || "https://api-lr.agent.ai/v1/agent/0ruhcwrru3ngh3qr/webhook/332e7bcc"
+      const AGENT_API_KEY = NEXT.env.AGENT_API_KEY
+      const AGENT_ID = NEXT.env.AGENT_ID
+      const apiUrl = AGENT_WEBHOOK_URL || NEXT.env.AGENT_WEBHOOK_URL
 
       const controller = new AbortController()
       const timeoutId = setTimeout(() => controller.abort(), 10000) // 10 second timeout
