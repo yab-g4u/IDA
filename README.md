@@ -74,8 +74,8 @@ The app is designed to be **fast, responsive, and user-friendly**, ensuring **se
 ## **🚀 Getting Started**  
 ### **1️⃣ Clone the Repository**  
 ```bash  
-git clone https://github.com/yab-g4u/medi-finder.git  
-cd medi-finder  
+git clone [https://github.com/yab-g4u/IDA.git]
+cd IDA  
 ```
 
 ### **2️⃣ Install Dependencies**  
