@@ -6,12 +6,21 @@ import { medicineDatabase } from "@/lib/medicine-data"
 
 interface AutoSuggestionProps {
   searchTerm: string
-  setSearchTerm: (term: string) => void
-  onSelect: (term: string) => void
+  setSearchTerm?: (term: string) => void
+  onSelect?: (term: string) => void
+  onSuggestionClick?: (term: string) => void
   suggestions?: string[]
+  className?: string
 }
 
-export default function AutoSuggestion({ searchTerm, setSearchTerm, onSelect, suggestions }: AutoSuggestionProps) {
+export default function AutoSuggestion({
+  searchTerm,
+  setSearchTerm,
+  onSelect,
+  onSuggestionClick,
+  suggestions,
+  className = "",
+}: AutoSuggestionProps) {
   const [filteredSuggestions, setFilteredSuggestions] = useState<string[]>([])
   const [isVisible, setIsVisible] = useState(false)
   const { t } = useLanguage()
@@ -33,7 +42,7 @@ export default function AutoSuggestion({ searchTerm, setSearchTerm, onSelect, su
 
     setFilteredSuggestions(filtered)
     setIsVisible(filtered.length > 0)
-  }, [searchTerm]) // Remove medicineList from dependencies
+  }, [searchTerm, medicineList])
 
   // Close suggestions when clicking outside
   useEffect(() => {
@@ -50,9 +59,16 @@ export default function AutoSuggestion({ searchTerm, setSearchTerm, onSelect, su
   }, [])
 
   const handleSuggestionClick = (suggestion: string) => {
-    setSearchTerm(suggestion)
+    if (setSearchTerm) {
+      setSearchTerm(suggestion)
+    }
+    if (onSuggestionClick) {
+      onSuggestionClick(suggestion)
+    }
+    if (onSelect) {
+      onSelect(suggestion)
+    }
     setIsVisible(false)
-    onSelect(suggestion)
   }
 
   if (!isVisible || filteredSuggestions.length === 0) {
@@ -60,7 +76,7 @@ export default function AutoSuggestion({ searchTerm, setSearchTerm, onSelect, su
   }
 
   return (
-    <div ref={wrapperRef} className="w-full rounded-md border bg-background shadow-md">
+    <div ref={wrapperRef} className={`w-full rounded-md border bg-background shadow-md ${className}`}>
       <ul className="py-2">
         {filteredSuggestions.map((suggestion, index) => (
           <li
@@ -75,3 +91,6 @@ export default function AutoSuggestion({ searchTerm, setSearchTerm, onSelect, su
     </div>
   )
 }
+
+// Named export for compatibility
+export { AutoSuggestion }

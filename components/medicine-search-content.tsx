@@ -1,18 +1,51 @@
 "use client"
 
 import type React from "react"
-
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
+import { useState, useEffect, useRef } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Input } from "@/components/ui/input"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Loader2, Search, Pill, AlertTriangle, Info, Clock, Shield, X, RotateCcw } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { useToast } from "@/components/ui/use-toast"
+import { Loader2, Search, MapPin, X, MessageCircle, RotateCcw } from "lucide-react"
 import { useLanguage } from "@/contexts/language-context"
-import { MedicineChatbot } from "./medicine-chatbot"
-import { AutoSuggestion } from "./auto-suggestion"
+import AutoSuggestion from "./auto-suggestion"
+import LoadingSpinner from "./loading-spinner"
+import MedicineChatbot from "./medicine-chatbot"
+import Link from "next/link"
 import { useAuth } from "@/hooks/use-auth"
-import { saveSearchHistory } from "@/lib/supabase-client"
+
+// Default translations in case the context fails
+const defaultTranslations = {
+  medicineSearchTitle: "Medicine Information Search",
+  medicineSearchDescription: "Search for detailed information about medicines, their uses, side effects, and more.",
+  searchMedicinePlaceholder: "Enter medicine name",
+  search: "Search",
+  errorOccurred: "An Error Occurred",
+  description: "Description",
+  usageInstructions: "Usage Instructions",
+  sideEffects: "Side Effects",
+  warnings: "Warnings",
+  interactions: "Interactions",
+  storageInstructions: "Storage Instructions",
+  dosageInfo: "Dosage Information",
+  ageGroup: "Age Group",
+  dosage: "Dosage",
+  frequency: "Frequency",
+  showLess: "Show Less",
+  showMore: "Show More",
+  askAboutMedicine: "Ask About This Medicine",
+  askAboutMedicineDescription: "Have a question about this medicine? Ask our AI assistant.",
+  yourQuestion: "Your Question",
+  questionPlaceholder: "e.g., Can I take this medicine with food?",
+  submit: "Submit",
+  findPharmacies: "Find Pharmacies",
+  noMedicineInfo: "No medicine information found",
+  enterMedicineName: "Enter a medicine name to search",
+  searching: "Searching...",
+  translating: "Translating to Amharic...",
+  searchAnother: "Search Another Medicine",
+}
 
 interface MedicineInfo {
   name: string
@@ -20,85 +53,177 @@ interface MedicineInfo {
   success: boolean
 }
 
-export function MedicineSearchContent() {
+export default function MedicineSearchContent() {
   const [searchTerm, setSearchTerm] = useState("")
-  const [medicineInfo, setMedicineInfo] = useState<MedicineInfo | null>(null)
   const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [showChatbot, setShowChatbot] = useState(false)
   const [isSearching, setIsSearching] = useState(false)
-  const { language, translations } = useLanguage()
+  const [searchStartTime, setSearchStartTime] = useState<number | null>(null)
+  const [medicine, setMedicine] = useState<MedicineInfo | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  const [showDetails, setShowDetails] = useState(false)
+  const [showChatbot, setShowChatbot] = useState(false)
+  const [isTranslating, setIsTranslating] = useState(false)
+  const [isTranslated, setIsTranslated] = useState(false)
+  const [originalContent, setOriginalContent] = useState<MedicineInfo | null>(null)
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  const languageContext = useLanguage()
+  const { toast } = useToast()
   const { user } = useAuth()
+  const resultRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
+  const [showClearButton, setShowClearButton] = useState(false)
+  const [initialQueryProcessed, setInitialQueryProcessed] = useState(false)
 
-  const handleSearch = async () => {
-    if (!searchTerm.trim()) return
+  // Safe translation function that falls back to defaults
+  const t = (key: string) => {
+    if (languageContext && typeof languageContext.t === "function") {
+      const translated = languageContext.t(key)
+      // If translation returns the key itself, use default
+      return translated === key ? defaultTranslations[key as keyof typeof defaultTranslations] || key : translated
+    }
+    return defaultTranslations[key as keyof typeof defaultTranslations] || key
+  }
+
+  // Safe language and setLanguage
+  const language = languageContext?.language || "en"
+  const setLanguage = languageContext?.setLanguage || (() => {})
+
+  // Handle initial query from URL
+  useEffect(() => {
+    const query = searchParams.get("q")
+    if (query && !initialQueryProcessed) {
+      setSearchTerm(query)
+      setShowClearButton(true)
+      setInitialQueryProcessed(true)
+
+      // Perform the search
+      handleSearch(query)
+    }
+  }, [searchParams, initialQueryProcessed])
+
+  const clearSearch = () => {
+    setSearchTerm("")
+    setMedicine(null)
+    setError(null)
+    setIsTranslated(false)
+    setShowClearButton(false)
+    setShowChatbot(false)
+    setShowDetails(false)
+    // Clear the URL query parameter
+    router.push("/medicine-search")
+    if (inputRef.current) {
+      inputRef.current.focus()
+    }
+  }
+
+  const startNewSearch = () => {
+    setMedicine(null)
+    setError(null)
+    setIsTranslated(false)
+    setShowChatbot(false)
+    setShowDetails(false)
+    setSearchTerm("")
+    setShowClearButton(false)
+    router.push("/medicine-search")
+    if (inputRef.current) {
+      inputRef.current.focus()
+    }
+  }
+
+  // Function to fetch medicine information from server-side API
+  const fetchMedicineInfo = async (medicineName: string): Promise<MedicineInfo> => {
+    const response = await fetch("/api/medicine-info", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ medicineName }),
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json()
+      throw new Error(errorData.error || "Failed to fetch medicine information")
+    }
+
+    const data = await response.json()
+    return {
+      name: medicineName,
+      information: data.information,
+      success: data.success,
+    }
+  }
+
+  const handleSearch = async (term: string = searchTerm) => {
+    if (!term.trim()) {
+      setError("Please enter a medicine name")
+      return
+    }
 
     setIsLoading(true)
     setIsSearching(true)
+    setSearchStartTime(Date.now())
     setError(null)
-    setMedicineInfo(null)
-    setShowChatbot(false)
+    setIsTranslated(false)
 
     try {
-      // Save search history if user is logged in
-      if (user) {
-        try {
-          await saveSearchHistory(user.id, searchTerm, "medicine")
-        } catch (historyError) {
-          console.error("Failed to save search history:", historyError)
-        }
+      // Add a pulse animation to the search input
+      if (inputRef.current) {
+        inputRef.current.classList.add("animate-pulse")
       }
 
-      const response = await fetch("/api/medicine-info", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ medicineName: searchTerm }),
-      })
+      const data = await fetchMedicineInfo(term)
+      const currentTime = Date.now()
+      const elapsedTime = currentTime - (searchStartTime || currentTime)
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch medicine information")
+      // If search was too fast, add a small delay for better UX
+      if (elapsedTime < 1500) {
+        await new Promise((resolve) => setTimeout(resolve, 1500 - elapsedTime))
       }
 
-      const data = await response.json()
+      // Remove animation from search input
+      if (inputRef.current) {
+        inputRef.current.classList.remove("animate-pulse")
+      }
 
       if (data.success) {
-        setMedicineInfo({
-          name: searchTerm,
-          information: data.information,
-          success: true,
-        })
+        setMedicine(data)
+        setOriginalContent(data) // Store original content for translation
+
+        // Scroll to results
+        setTimeout(() => {
+          if (resultRef.current) {
+            resultRef.current.scrollIntoView({ behavior: "smooth" })
+          }
+        }, 100)
       } else {
-        setError(data.error || "Failed to get medicine information")
+        setError(`Medicine "${term}" not found. Please check the spelling or try a different medicine name.`)
+        setMedicine(null)
       }
-    } catch (err) {
-      console.error("Search error:", err)
-      setError("Failed to search for medicine information. Please try again.")
+    } catch (error) {
+      console.error("Error fetching medicine info:", error)
+      setError("Failed to fetch medicine information. Please check your internet connection and try again.")
+      setMedicine(null)
     } finally {
       setIsLoading(false)
       setIsSearching(false)
     }
   }
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    setSearchTerm(value)
+    setShowClearButton(!!value.trim())
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
-      handleSearch()
+      if (searchTerm.trim()) {
+        router.push(`/medicine-search?q=${encodeURIComponent(searchTerm)}`)
+      } else {
+        setError("Please enter a medicine name")
+      }
     }
-  }
-
-  const clearSearch = () => {
-    setSearchTerm("")
-    setMedicineInfo(null)
-    setError(null)
-    setShowChatbot(false)
-  }
-
-  const searchAnother = () => {
-    setSearchTerm("")
-    setMedicineInfo(null)
-    setError(null)
-    setShowChatbot(false)
   }
 
   const formatMedicineInfo = (info: string) => {
@@ -108,10 +233,7 @@ export function MedicineSearchContent() {
         const [title, ...content] = section.split(":")
         return (
           <div key={index} className="mb-4">
-            <h3 className="font-semibold text-lg mb-2 flex items-center gap-2">
-              {getIconForSection(title.trim())}
-              {title.trim()}
-            </h3>
+            <h3 className="font-semibold text-lg mb-2">{title.trim()}</h3>
             <p className="text-gray-700 dark:text-gray-300 leading-relaxed">{content.join(":").trim()}</p>
           </div>
         )
@@ -124,148 +246,155 @@ export function MedicineSearchContent() {
     })
   }
 
-  const getIconForSection = (title: string) => {
-    const lowerTitle = title.toLowerCase()
-    if (lowerTitle.includes("dosage") || lowerTitle.includes("dose")) return <Pill className="w-5 h-5 text-blue-500" />
-    if (lowerTitle.includes("side effects") || lowerTitle.includes("adverse"))
-      return <AlertTriangle className="w-5 h-5 text-yellow-500" />
-    if (lowerTitle.includes("warning") || lowerTitle.includes("contraindication"))
-      return <Shield className="w-5 h-5 text-red-500" />
-    if (lowerTitle.includes("storage") || lowerTitle.includes("store"))
-      return <Clock className="w-5 h-5 text-green-500" />
-    return <Info className="w-5 h-5 text-gray-500" />
-  }
-
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
-      <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-          {translations.medicineSearch}
-        </h1>
-        <p className="text-xl text-gray-600 dark:text-gray-400">{translations.medicineSearchDescription}</p>
+    <div className="container mx-auto px-4 py-8">
+      <div className="mx-auto max-w-3xl text-center">
+        <h1 className="text-3xl font-bold sm:text-4xl">{t("medicineSearchTitle")}</h1>
+        <p className="mt-4 text-muted-foreground">{t("medicineSearchDescription")}</p>
       </div>
 
-      <div className="mb-8">
-        <div className="relative max-w-2xl mx-auto">
-          <div className="relative">
+      <div className="mx-auto mt-8 max-w-2xl">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault()
+            if (searchTerm.trim()) {
+              router.push(`/medicine-search?q=${encodeURIComponent(searchTerm)}`)
+              setShowClearButton(true)
+            } else {
+              setError("Please enter a medicine name")
+            }
+          }}
+          className="flex flex-col space-y-2 sm:flex-row sm:space-x-2 sm:space-y-0"
+        >
+          <div className="relative flex-1">
             <Input
+              ref={inputRef}
               type="text"
-              placeholder={translations.enterMedicineName}
+              placeholder={t("searchMedicinePlaceholder")}
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              onKeyPress={handleKeyPress}
-              className={`w-full pl-12 pr-12 py-4 text-lg rounded-xl border-2 transition-all duration-300 ${
-                isSearching
-                  ? "border-blue-400 shadow-lg animate-pulse"
-                  : "border-gray-300 hover:border-blue-400 focus:border-blue-500"
-              }`}
-              disabled={isLoading}
+              onChange={handleInputChange}
+              onKeyDown={handleKeyDown}
+              className="pr-10"
+              autoComplete="off"
             />
-            <Search
-              className={`absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 ${
-                isSearching ? "text-blue-500 animate-pulse" : "text-gray-400"
-              }`}
-            />
-            {searchTerm && (
+            {showClearButton && searchTerm.trim() !== "" && (
               <Button
+                type="button"
                 variant="ghost"
-                size="sm"
+                size="icon"
+                className="absolute right-10 top-0 h-full"
                 onClick={clearSearch}
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0 hover:bg-gray-100 dark:hover:bg-gray-800"
               >
-                <X className="w-4 h-4" />
+                <X className="h-4 w-4" />
+                <span className="sr-only">Clear search</span>
               </Button>
             )}
+            {searchTerm.trim() !== "" && (
+              <div className="absolute left-0 right-0 top-full z-10 mt-1">
+                <AutoSuggestion
+                  searchTerm={searchTerm}
+                  setSearchTerm={setSearchTerm}
+                  onSelect={(term) => {
+                    router.push(`/medicine-search?q=${encodeURIComponent(term)}`)
+                    setShowClearButton(true)
+                  }}
+                />
+              </div>
+            )}
           </div>
-
-          <AutoSuggestion searchTerm={searchTerm} onSuggestionClick={setSearchTerm} className="mt-2" />
-
-          <div className="flex gap-4 mt-4 justify-center">
-            <Button
-              onClick={handleSearch}
-              disabled={isLoading || !searchTerm.trim()}
-              className="px-8 py-3 text-lg rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105"
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                  {translations.searching}
-                </>
-              ) : (
-                <>
-                  <Search className="mr-2 h-5 w-5" />
-                  {translations.search}
-                </>
-              )}
-            </Button>
-          </div>
-        </div>
+          <Button type="submit" disabled={isSearching}>
+            {isSearching ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                {t("searching")}
+              </>
+            ) : (
+              <>
+                <Search className="mr-2 h-4 w-4" />
+                {t("search")}
+              </>
+            )}
+          </Button>
+        </form>
       </div>
 
-      {error && (
-        <Card className="mb-8 border-red-200 bg-red-50 dark:bg-red-900/20">
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3">
-              <AlertTriangle className="w-6 h-6 text-red-500" />
-              <p className="text-red-700 dark:text-red-300">{error}</p>
-            </div>
+      {isSearching && (
+        <div className="mt-12 flex flex-col items-center justify-center">
+          <LoadingSpinner size="lg" />
+          <p className="mt-4 text-lg animate-pulse">{t("searching")}</p>
+        </div>
+      )}
+
+      {error && !isSearching && (
+        <Card className="mx-auto mt-12 max-w-3xl border-destructive/50 bg-destructive/10">
+          <CardHeader>
+            <CardTitle className="text-center text-destructive">{t("errorOccurred")}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-center">{error}</p>
           </CardContent>
+          <CardFooter className="flex justify-center">
+            <Button onClick={startNewSearch} variant="outline">
+              <RotateCcw className="mr-2 h-4 w-4" />
+              Try Another Search
+            </Button>
+          </CardFooter>
         </Card>
       )}
 
-      {medicineInfo && (
-        <div className="space-y-6">
-          <Card className="border-2 border-blue-200 shadow-lg">
-            <CardHeader className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20">
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="text-2xl flex items-center gap-3">
-                    <Pill className="w-8 h-8 text-blue-600" />
-                    {medicineInfo.name}
-                  </CardTitle>
-                  <CardDescription className="text-lg mt-2">{translations.medicineInformation}</CardDescription>
-                </div>
-                <Badge
-                  variant="secondary"
-                  className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                >
-                  {translations.verified}
-                </Badge>
-              </div>
-            </CardHeader>
-            <CardContent className="pt-6">
-              <div className="prose max-w-none dark:prose-invert">{formatMedicineInfo(medicineInfo.information)}</div>
+      {medicine && !isSearching && (
+        <div ref={resultRef} className="mt-12 animate-fadeIn">
+          {/* Search Another Medicine Button */}
+          <div className="mx-auto max-w-4xl mb-6">
+            <Button onClick={startNewSearch} variant="outline" className="w-full sm:w-auto bg-transparent">
+              <RotateCcw className="mr-2 h-4 w-4" />
+              {t("searchAnother")}
+            </Button>
+          </div>
 
-              <div className="flex gap-4 mt-8 pt-6 border-t">
-                <Button onClick={() => setShowChatbot(!showChatbot)} variant="outline" className="flex-1">
+          <Card className="mx-auto max-w-4xl">
+            <CardHeader className="flex flex-row items-start justify-between space-y-0 flex-wrap gap-4">
+              <div>
+                <CardTitle className="text-2xl">{medicine.name}</CardTitle>
+                <CardDescription className="mt-2">Medicine Information</CardDescription>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <Button variant="outline" size="sm" onClick={() => setShowChatbot(!showChatbot)}>
+                  <MessageCircle className="mr-2 h-4 w-4" />
                   {showChatbot ? "Hide Chat" : "Ask Questions"}
                 </Button>
-                <Button
-                  onClick={searchAnother}
-                  variant="default"
-                  className="flex-1 bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700"
-                >
-                  <RotateCcw className="mr-2 h-4 w-4" />
-                  Search Another Medicine
-                </Button>
+                <Link href={`/pharmacy-finder?medicine=${encodeURIComponent(medicine.name)}`}>
+                  <Button variant="outline" size="sm">
+                    <MapPin className="mr-2 h-4 w-4" />
+                    {t("findPharmacies")}
+                  </Button>
+                </Link>
               </div>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="prose max-w-none dark:prose-invert">{formatMedicineInfo(medicine.information)}</div>
             </CardContent>
+            <CardFooter className="flex justify-between flex-wrap gap-4">
+              <Button variant="outline" onClick={() => setShowDetails(!showDetails)}>
+                {showDetails ? t("showLess") : t("showMore")}
+              </Button>
+            </CardFooter>
           </Card>
 
+          {/* Chatbot Section */}
           {showChatbot && (
-            <Card className="border-2 border-purple-200">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Info className="w-6 h-6 text-purple-600" />
-                  Ask Questions About {medicineInfo.name}
-                </CardTitle>
-                <CardDescription>Get more specific information about this medicine</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <MedicineChatbot medicineName={medicineInfo.name} />
-              </CardContent>
-            </Card>
+            <div className="mx-auto mt-8 max-w-4xl">
+              <MedicineChatbot medicineName={medicine.name} />
+            </div>
           )}
+        </div>
+      )}
+
+      {!medicine && !error && !isLoading && !isSearching && (
+        <div className="text-center py-16 bg-muted/30 rounded-lg max-w-4xl mx-auto mt-12">
+          <Search className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+          <h3 className="text-xl font-medium mb-2">{t("noMedicineInfo")}</h3>
+          <p className="text-muted-foreground">{t("enterMedicineName")}</p>
         </div>
       )}
     </div>

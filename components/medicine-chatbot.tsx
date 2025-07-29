@@ -1,116 +1,126 @@
 "use client"
+
+import { useState } from "react"
+import { useChat } from "ai/react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Card, CardContent } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Loader2, Send, Bot, User } from "lucide-react"
-import { useChat } from "ai/react"
+import { Loader2, Send, MessageCircle, Bot, User } from "lucide-react"
 
 interface MedicineChatbotProps {
   medicineName: string
 }
 
-export function MedicineChatbot({ medicineName }: MedicineChatbotProps) {
+export default function MedicineChatbot({ medicineName }: MedicineChatbotProps) {
   const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat({
     api: "/api/chat",
-    initialMessages: [
-      {
-        id: "welcome",
-        role: "assistant",
-        content: `Hello! I'm here to help answer questions about ${medicineName}. What would you like to know?`,
-      },
-    ],
+    body: {
+      medicineName,
+    },
   })
 
-  const quickQuestions = [
-    `What are the side effects of ${medicineName}?`,
-    `How should I take ${medicineName}?`,
-    `Can I take ${medicineName} with other medications?`,
-    `What should I do if I miss a dose of ${medicineName}?`,
-  ]
+  const [quickQuestions] = useState([
+    "What are the side effects?",
+    "Can I take this with food?",
+    "What is the correct dosage?",
+    "Are there any drug interactions?",
+    "How should I store this medicine?",
+  ])
 
   const handleQuickQuestion = (question: string) => {
-    handleSubmit(new Event("submit") as any, { data: { message: question } })
+    handleInputChange({ target: { value: question } } as any)
+    handleSubmit({ preventDefault: () => {} } as any)
   }
 
   return (
-    <div className="space-y-4">
-      <ScrollArea className="h-96 w-full border rounded-lg p-4">
-        <div className="space-y-4">
-          {messages.map((message) => (
-            <div
-              key={message.id}
-              className={`flex items-start gap-3 ${message.role === "user" ? "justify-end" : "justify-start"}`}
-            >
+    <Card className="w-full">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <MessageCircle className="h-5 w-5" />
+          Ask About {medicineName}
+        </CardTitle>
+        <CardDescription>Get specific information about this medicine from our AI assistant</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {/* Quick Questions */}
+        {messages.length === 0 && (
+          <div className="space-y-2">
+            <p className="text-sm font-medium">Quick questions:</p>
+            <div className="flex flex-wrap gap-2">
+              {quickQuestions.map((question, index) => (
+                <Button
+                  key={index}
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleQuickQuestion(question)}
+                  disabled={isLoading}
+                >
+                  {question}
+                </Button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Chat Messages */}
+        <ScrollArea className="h-64 w-full border rounded-md p-4">
+          <div className="space-y-4">
+            {messages.map((message) => (
               <div
-                className={`flex items-start gap-3 max-w-[80%] ${
-                  message.role === "user" ? "flex-row-reverse" : "flex-row"
-                }`}
+                key={message.id}
+                className={`flex items-start gap-3 ${message.role === "user" ? "justify-end" : "justify-start"}`}
               >
+                {message.role === "assistant" && (
+                  <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <Bot className="h-4 w-4" />
+                  </div>
+                )}
                 <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                    message.role === "user" ? "bg-blue-500 text-white" : "bg-gray-200 dark:bg-gray-700"
+                  className={`max-w-[80%] rounded-lg px-3 py-2 ${
+                    message.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted"
                   }`}
                 >
-                  {message.role === "user" ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
+                  <p className="text-sm">{message.content}</p>
                 </div>
-                <Card
-                  className={`${message.role === "user" ? "bg-blue-500 text-white" : "bg-gray-50 dark:bg-gray-800"}`}
-                >
-                  <CardContent className="p-3">
-                    <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
-          ))}
-          {isLoading && (
-            <div className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-                <Bot className="w-4 h-4" />
-              </div>
-              <Card className="bg-gray-50 dark:bg-gray-800">
-                <CardContent className="p-3">
-                  <div className="flex items-center gap-2">
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    <span className="text-sm">Thinking...</span>
+                {message.role === "user" && (
+                  <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <User className="h-4 w-4" />
                   </div>
-                </CardContent>
-              </Card>
-            </div>
-          )}
-        </div>
-      </ScrollArea>
+                )}
+              </div>
+            ))}
+            {isLoading && (
+              <div className="flex items-start gap-3">
+                <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                  <Bot className="h-4 w-4" />
+                </div>
+                <div className="bg-muted rounded-lg px-3 py-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                </div>
+              </div>
+            )}
+          </div>
+        </ScrollArea>
 
-      <div className="space-y-3">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-          {quickQuestions.map((question, index) => (
-            <Button
-              key={index}
-              variant="outline"
-              size="sm"
-              onClick={() => handleQuickQuestion(question)}
-              disabled={isLoading}
-              className="text-left justify-start h-auto p-2 text-xs"
-            >
-              {question}
-            </Button>
-          ))}
-        </div>
-
+        {/* Input Form */}
         <form onSubmit={handleSubmit} className="flex gap-2">
           <Input
             value={input}
             onChange={handleInputChange}
-            placeholder={`Ask about ${medicineName}...`}
+            placeholder={`Ask a question about ${medicineName}...`}
             disabled={isLoading}
-            className="flex-1"
           />
           <Button type="submit" disabled={isLoading || !input.trim()}>
-            {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+            {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
           </Button>
         </form>
-      </div>
-    </div>
+
+        <p className="text-xs text-muted-foreground">
+          This AI assistant provides general information only. Always consult with a healthcare professional for medical
+          advice.
+        </p>
+      </CardContent>
+    </Card>
   )
 }

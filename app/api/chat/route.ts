@@ -3,22 +3,35 @@ import { google } from "@ai-sdk/google"
 
 export async function POST(req: Request) {
   try {
-    const { messages } = await req.json()
+    const { messages, medicineName } = await req.json()
+
+    const apiKey = process.env.GEMINI_API_KEY
+    if (!apiKey) {
+      return new Response("API key not configured", { status: 500 })
+    }
+
+    const systemPrompt = `You are a helpful medical AI assistant specializing in medicine information. 
+    The user is asking about the medicine: ${medicineName}
+    
+    Please provide accurate, helpful, and concise medical information. 
+    Keep responses under 200 tokens and focus on the specific question asked.
+    Always remind users to consult healthcare professionals for medical advice.
+    
+    If you're not certain about specific medical information, say so clearly.`
 
     const result = await streamText({
-      model: google("models/gemini-1.5-flash-latest", {
-        apiKey: process.env.GEMINI_API_KEY,
+      model: google("gemini-2.0-flash-exp", {
+        apiKey: apiKey,
       }),
+      system: systemPrompt,
       messages,
       maxTokens: 200,
-      system: `You are a helpful medical assistant. Provide concise, accurate information about medicines and health topics. 
-      Keep responses under 200 tokens. Focus on essential information only. 
-      Always recommend consulting healthcare professionals for medical advice.`,
+      temperature: 0.3,
     })
 
     return result.toDataStreamResponse()
   } catch (error) {
-    console.error("Chat API Error:", error)
-    return new Response("Internal Server Error", { status: 500 })
+    console.error("Chat API error:", error)
+    return new Response("Internal server error", { status: 500 })
   }
 }

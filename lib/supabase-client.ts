@@ -1,19 +1,11 @@
 import { createClient } from "@supabase/supabase-js"
 
 // Updated Supabase credentials
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://gbccqpbijetnjqlqmcit.supabase.co"
-const supabaseAnonKey =
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdiY2NxcGJpamV0bnFqbHFtY2l0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM3ODE4MTksImV4cCI6MjA2OTM1NzgxOX0.AYJbRWCAKmYZ25JTWPFhm6juC2aCpVzTj_8qaO5UpfI"
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
 // Initialize the Supabase client
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: true,
-  },
-})
+export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 // Authentication functions
 export const signUpUser = async (email: string, password: string) => {
@@ -70,25 +62,22 @@ export const logoutUser = async () => {
 }
 
 // Search history functions
-export const saveSearchHistory = async (
-  userId: string,
-  medicineName: string,
-  searchType: "medicine" | "pharmacy" = "medicine",
-) => {
-  const { data, error } = await supabase.from("search_history").insert([
-    {
-      user_id: userId,
-      query: medicineName,
-      type: searchType,
-      searched_at: new Date().toISOString(),
-    },
-  ])
+export const saveSearchHistory = async (userId: string, searchTerm: string, searchType: string) => {
+  try {
+    const { error } = await supabase.from("search_history").insert([
+      {
+        user_id: userId,
+        search_term: searchTerm,
+        search_type: searchType,
+        created_at: new Date().toISOString(),
+      },
+    ])
 
-  if (error) {
-    console.error("Error saving search history:", error.message)
+    if (error) throw error
+  } catch (error) {
+    console.error("Error saving search history:", error)
     throw error
   }
-  return data
 }
 
 export const getSearchHistory = async (userId: string, searchType: "medicine" | "pharmacy" = "medicine", limit = 5) => {
