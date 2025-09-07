@@ -4,7 +4,7 @@
 ---
 
 ## 🏆 **Hackathon Winner!**
-We are thrilled to announce that **IDA** has won the hackathon! 🎉 Our innovative AI-powered medical assistant stood out for its **impactful healthcare solution, seamless user experience, and blockchain integration.** Thank you to everyone who supported us on this journey! 🙌  
+We are thrilled to announce that **IDA** has won the hackathon!  Our innovative AI-powered medical assistant stood out for its **impactful healthcare solution, seamless user experience, and blockchain integration.** Thank you to everyone who supported us on this journey! 🙌  
 ![Certificate](Docs/IDA.png)
 
 
