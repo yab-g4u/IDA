@@ -15,7 +15,7 @@ The **AI-Powered Medical Assistant** is an **interactive, modern, and intuitive*
 
 ### **Our AI Agent Assists Users By:**
 1️⃣ **Providing detailed medical insights** about medicines (usage, side effects, precautions).  
-2️⃣ **Finding nearby pharmacies** using real-time location-based search and an interactive map.  
+2️⃣ **Finding nearby pharmacies** using real-time locationbased search and an interactive map.  
 3️⃣ **Blockchain-Powered Marketplace** – A secure platform to buy verified medicines with blockchain technology ensuring transparency and trust.  
 4️⃣ **IDT Token** – A utility token that rewards users for engaging with the platform.  
 
