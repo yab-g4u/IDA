@@ -1,5 +1,5 @@
 ### **IDA**  
-🚀 *Revolutionizing healthcare accessibility using AI agents to provide people with medicine information and pharmacy discovery.*  
+🚀 *Revolutionizing healthcare accessibility using AI agent to provide people with medicine information and pharmacy discovery.*  
 
 ---
 
